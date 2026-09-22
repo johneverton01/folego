@@ -1,0 +1,34 @@
+{
+  "projectName": "folego",
+  "mode": "file-router",
+  "typescript": true,
+  "packageManager": "npm",
+  "includeExamples": true,
+  "tailwind": true,
+  "projectPreset": "default",
+  "addOnOptions": {
+    "prisma": {
+      "database": "postgres"
+    }
+  },
+  "git": true,
+  "install": true,
+  "intent": true,
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "biome",
+    "nitro",
+    "prisma",
+    "ai",
+    "shadcn",
+    "table",
+    "store",
+    "tanstack-query",
+    "storybook",
+    "paraglide",
+    "better-auth",
+    "neon"
+  ]
+}
