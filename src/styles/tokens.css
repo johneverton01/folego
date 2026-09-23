@@ -1,0 +1,32 @@
+/* Fôlego — variáveis de tema (canais RGB p/ opacidade no Tailwind). Gerado de tokens.json. */
+:root {
+  color-scheme: light dark;
+  --paper: 241 245 240;  --surface: 255 255 255;  --surface-2: 247 250 246;
+  --ink: 20 35 31;       --ink-soft: 78 96 90;    --ink-faint: 132 150 143;
+  --line: 223 231 222;
+  --accent: 38 140 92;   --accent-deep: 27 102 68; --accent-wash: 230 242 234;
+  --ok: 47 163 107;      --amber: 201 135 30;      --amber-wash: 248 239 219;
+  --red: 206 84 66;      --red-wash: 248 231 226;
+  --radius-tab: 9px; --radius-control: 12px; --radius-card: 18px;
+  --shadow: 0 1px 2px rgb(20 35 31 / .04), 0 8px 24px -12px rgb(20 35 31 / .18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: 13 24 21;   --surface: 19 35 32;      --surface-2: 15 30 26;
+    --ink: 233 242 236;  --ink-soft: 157 178 170;  --ink-faint: 108 128 121;
+    --line: 35 58 50;
+    --accent: 72 189 132; --accent-deep: 107 211 160; --accent-wash: 21 44 34;
+    --ok: 79 192 133;    --amber: 224 166 60;      --amber-wash: 43 36 22;
+    --red: 229 112 91;   --red-wash: 46 27 24;
+    --shadow: 0 1px 2px rgb(0 0 0 / .25), 0 10px 30px -14px rgb(0 0 0 / .6);
+  }
+}
+html[data-theme="dark"] {
+  --paper: 13 24 21;   --surface: 19 35 32;      --surface-2: 15 30 26;
+  --ink: 233 242 236;  --ink-soft: 157 178 170;  --ink-faint: 108 128 121;
+  --line: 35 58 50;
+  --accent: 72 189 132; --accent-deep: 107 211 160; --accent-wash: 21 44 34;
+  --ok: 79 192 133;    --amber: 224 166 60;      --amber-wash: 43 36 22;
+  --red: 229 112 91;   --red-wash: 46 27 24;
+  --shadow: 0 1px 2px rgb(0 0 0 / .25), 0 10px 30px -14px rgb(0 0 0 / .6);
+}

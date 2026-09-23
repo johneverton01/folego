@@ -10,6 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAprenderRouteImport } from './routes/app.aprender'
+import { Route as AppMetasRouteImport } from './routes/app.metas'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as DemoAiChatRouteImport } from './routes/demo/ai-chat'
@@ -35,6 +39,26 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAprenderRoute = AppAprenderRouteImport.update({
+  id: '/aprender',
+  path: '/aprender',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMetasRoute = AppMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AppRoute,
 } as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
@@ -139,6 +163,9 @@ const DemoApiAiTtsRoute = DemoApiAiTtsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/aprender': typeof AppAprenderRoute
+  '/app/metas': typeof AppMetasRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/demo/ai-chat': typeof DemoAiChatRoute
@@ -151,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/guitars/$guitarId': typeof DemoGuitarsGuitarIdRoute
   '/demo/guitars/': typeof DemoGuitarsIndexRoute
@@ -162,6 +190,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/aprender': typeof AppAprenderRoute
+  '/app/metas': typeof AppMetasRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/demo/ai-chat': typeof DemoAiChatRoute
@@ -174,6 +204,7 @@ export interface FileRoutesByTo {
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/guitars/$guitarId': typeof DemoGuitarsGuitarIdRoute
   '/demo/guitars': typeof DemoGuitarsIndexRoute
@@ -186,6 +217,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/aprender': typeof AppAprenderRoute
+  '/app/metas': typeof AppMetasRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/demo/ai-chat': typeof DemoAiChatRoute
@@ -198,6 +232,7 @@ export interface FileRoutesById {
   '/demo/store': typeof DemoStoreRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/guitars/$guitarId': typeof DemoGuitarsGuitarIdRoute
   '/demo/guitars/': typeof DemoGuitarsIndexRoute
@@ -211,6 +246,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
+    | '/app/aprender'
+    | '/app/metas'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/demo/ai-chat'
@@ -223,6 +261,7 @@ export interface FileRouteTypes {
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanstack-query'
+    | '/app/'
     | '/api/auth/$'
     | '/demo/guitars/$guitarId'
     | '/demo/guitars/'
@@ -234,6 +273,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/aprender'
+    | '/app/metas'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/demo/ai-chat'
@@ -246,6 +287,7 @@ export interface FileRouteTypes {
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanstack-query'
+    | '/app'
     | '/api/auth/$'
     | '/demo/guitars/$guitarId'
     | '/demo/guitars'
@@ -257,6 +299,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/app'
+    | '/app/aprender'
+    | '/app/metas'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/demo/ai-chat'
@@ -269,6 +314,7 @@ export interface FileRouteTypes {
     | '/demo/store'
     | '/demo/table'
     | '/demo/tanstack-query'
+    | '/app/'
     | '/api/auth/$'
     | '/demo/guitars/$guitarId'
     | '/demo/guitars/'
@@ -281,6 +327,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   DemoAiChatRoute: typeof DemoAiChatRoute
@@ -311,6 +358,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/aprender': {
+      id: '/app/aprender'
+      path: '/aprender'
+      fullPath: '/app/aprender'
+      preLoaderRoute: typeof AppAprenderRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/metas': {
+      id: '/app/metas'
+      path: '/metas'
+      fullPath: '/app/metas'
+      preLoaderRoute: typeof AppMetasRouteImport
+      parentRoute: typeof AppRoute
     }
     '/auth/sign-in': {
       id: '/auth/sign-in'
@@ -455,8 +530,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppRouteChildren {
+  AppAprenderRoute: typeof AppAprenderRoute
+  AppMetasRoute: typeof AppMetasRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAprenderRoute: AppAprenderRoute,
+  AppMetasRoute: AppMetasRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   DemoAiChatRoute: DemoAiChatRoute,

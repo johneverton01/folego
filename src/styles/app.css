@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@plugin '@tailwindcss/typography';
+
+@import 'tw-animate-css';
+
+/* Mapeia os tokens do Fôlego para utilitários do Tailwind v4.
+   rgb(var(--x)) troca sozinho no tema; opacidade (bg-accent/10) funciona via color-mix. */
+@theme {
+  --color-paper: rgb(var(--paper));
+  --color-surface: rgb(var(--surface));
+  --color-surface-soft: rgb(var(--surface-2));
+  --color-ink: rgb(var(--ink));
+  --color-ink-soft: rgb(var(--ink-soft));
+  --color-ink-faint: rgb(var(--ink-faint));
+  --color-line: rgb(var(--line));
+  --color-accent: rgb(var(--accent));
+  --color-accent-deep: rgb(var(--accent-deep));
+  --color-accent-wash: rgb(var(--accent-wash));
+  --color-ok: rgb(var(--ok));
+  --color-amber: rgb(var(--amber));
+  --color-amber-wash: rgb(var(--amber-wash));
+  --color-danger: rgb(var(--red));
+  --color-danger-wash: rgb(var(--red-wash));
+
+  --color-cat-casa: #268C5C;
+  --color-cat-comida: #7FB98F;
+  --color-cat-impostos: #C9871E;
+  --color-cat-lazer: #7C9CE0;
+  --color-cat-transporte: #5FB0C9;
+  --color-cat-assinaturas: #B98FD0;
+  --color-cat-outros: #B0938A;
+
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-tab: 9px;
+  --radius-control: 12px;
+  --radius-card: 18px;
+  --radius-pill: 9999px;
+
+  --shadow-float: var(--shadow);
+  --animate-breathe: breathe 5.5s ease-in-out infinite;
+}
+
+@keyframes breathe { 0%,100% { transform: scale(.9); opacity: .85 } 50% { transform: scale(1.06); opacity: 1 } }
+
+@layer base {
+  ::selection { background: rgb(var(--accent-wash)); }
+  :focus-visible { outline: 2.5px solid rgb(var(--accent)); outline-offset: 2px; border-radius: 6px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  }
+}
