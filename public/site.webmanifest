@@ -1,0 +1,13 @@
+{
+  "name": "Fôlego",
+  "short_name": "Fôlego",
+  "description": "Educação financeira para desenvolvedores PJ.",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "theme_color": "#268C5C",
+  "background_color": "#F1F5F0",
+  "display": "standalone"
+}

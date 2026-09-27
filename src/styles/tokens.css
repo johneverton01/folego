@@ -9,6 +9,7 @@
   --red: 206 84 66;      --red-wash: 248 231 226;
   --radius-tab: 9px; --radius-control: 12px; --radius-card: 18px;
   --shadow: 0 1px 2px rgb(20 35 31 / .04), 0 8px 24px -12px rgb(20 35 31 / .18);
+  --shadow-lg: 0 2px 4px rgb(20 35 31 / .04), 0 24px 60px -20px rgb(20 35 31 / .28);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -19,6 +20,7 @@
     --ok: 79 192 133;    --amber: 224 166 60;      --amber-wash: 43 36 22;
     --red: 229 112 91;   --red-wash: 46 27 24;
     --shadow: 0 1px 2px rgb(0 0 0 / .25), 0 10px 30px -14px rgb(0 0 0 / .6);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / .3), 0 30px 70px -22px rgb(0 0 0 / .7);
   }
 }
 html[data-theme="dark"] {
@@ -29,4 +31,5 @@ html[data-theme="dark"] {
   --ok: 79 192 133;    --amber: 224 166 60;      --amber-wash: 43 36 22;
   --red: 229 112 91;   --red-wash: 46 27 24;
   --shadow: 0 1px 2px rgb(0 0 0 / .25), 0 10px 30px -14px rgb(0 0 0 / .6);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / .3), 0 30px 70px -22px rgb(0 0 0 / .7);
 }

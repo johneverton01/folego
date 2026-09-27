@@ -35,21 +35,52 @@
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  /* Preflight's base `html` rule reads --default-font-family (not --font-sans) — without
+     this it falls back to Tailwind's built-in system-font stack. */
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+
   --radius-tab: 9px;
   --radius-control: 12px;
   --radius-card: 18px;
   --radius-pill: 9999px;
 
   --shadow-float: var(--shadow);
+  --shadow-lift: var(--shadow-lg);
   --animate-breathe: breathe 5.5s ease-in-out infinite;
+  --animate-nudge: nudge .5s cubic-bezier(.16,1,.3,1);
 }
 
+@keyframes nudge { 0%,100% { transform: rotate(0) } 30% { transform: rotate(-12deg) scale(1.1) } 60% { transform: rotate(8deg) } }
 @keyframes breathe { 0%,100% { transform: scale(.9); opacity: .85 } 50% { transform: scale(1.06); opacity: 1 } }
 
 @layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
   ::selection { background: rgb(var(--accent-wash)); }
   :focus-visible { outline: 2.5px solid rgb(var(--accent)); outline-offset: 2px; border-radius: 6px; }
   @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+    html { scroll-behavior: auto; }
   }
+}
+
+@layer components {
+  /* Slider do simulador de metas: trilho preenchido até o polegar (--fill), polegar que cresce ao arrastar. */
+  .range {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 9999px; outline: none;
+    background: linear-gradient(to right, rgb(var(--accent)) var(--fill, 0%), rgb(var(--line)) var(--fill, 0%));
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: rgb(var(--accent));
+    border: 4px solid rgb(var(--surface)); box-shadow: 0 2px 6px rgb(20 35 31 / .25); cursor: grab;
+    transition: transform .15s cubic-bezier(.16,1,.3,1), box-shadow .15s;
+  }
+  .range:hover::-webkit-slider-thumb { transform: scale(1.1); }
+  .range:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.2); box-shadow: 0 0 0 8px rgb(var(--accent) / .15); }
+  .range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgb(var(--accent) / .35); }
+  .range::-moz-range-thumb {
+    width: 24px; height: 24px; border-radius: 50%; background: rgb(var(--accent)); border: 4px solid rgb(var(--surface)); cursor: grab;
+    transition: transform .15s cubic-bezier(.16,1,.3,1);
+  }
+  .range:active::-moz-range-thumb { transform: scale(1.2); }
 }
