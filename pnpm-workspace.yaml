@@ -2,5 +2,6 @@ allowBuilds:
   '@google/genai': true
   '@prisma/engines': true
   esbuild: true
+  lightningcss: true
   prisma: true
   protobufjs: true
