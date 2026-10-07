@@ -6,7 +6,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { nitro } from 'nitro/vite';
-import neon from './neon-vite-plugin.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
@@ -29,7 +28,7 @@ const config = defineConfig({
     rollupConfig: {
       external: [/^@sentry\//]
     }
-  }), neon, tailwindcss(), tanstackStart(), viteReact()],
+  }), tailwindcss(), tanstackStart(), viteReact()],
   test: {
     projects: [{
       extends: true,

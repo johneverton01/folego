@@ -1,8 +1,18 @@
-import { createFileRoute, Outlet, Link } from '@tanstack/react-router'
+import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
 import { Logo } from '@/components/brand/Logo'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { getCurrentSession } from '@/lib/auth-server'
 
 export const Route = createFileRoute('/app')({
+  // Protege toda a árvore /app*: sem sessão válida ou com 2FA pendente, redireciona pro sign-in
+  // (o sign-in retoma a ativação do 2FA quando detecta `twoFactorEnabled: false`).
+  beforeLoad: async () => {
+    const session = await getCurrentSession()
+    if (!session || !session.user.twoFactorEnabled) {
+      throw redirect({ to: '/auth/sign-in' })
+    }
+    return { user: session.user }
+  },
   component: AppLayout,
 })
 

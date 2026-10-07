@@ -1,10 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AuthHeader } from '@/components/auth/AuthLayout'
+import { SignUpPage } from '@/pages/auth/SignUpPage'
 
 export const Route = createFileRoute('/auth/sign-up')({
-  component: SignUp,
+  component: SignUpPage,
 })
-
-function SignUp() {
-  return <AuthHeader title="Crie sua conta" description="Leva menos de um minuto. Sem cartão de crédito." />
-}

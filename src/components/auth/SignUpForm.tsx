@@ -5,110 +5,80 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FieldError, FormAlert } from "@/components/auth/FormFeedback";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { TwoFactorForm } from "@/components/auth/TwoFactorForm";
 import { TwoFactorSetupForm } from "@/components/auth/TwoFactorSetupForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InputEmail } from "@/components/ui/input-email";
+import { InputName } from "@/components/ui/input-name";
 import { InputPassword } from "@/components/ui/input-password";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { type SignInValues, signInSchema } from "@/lib/validations/auth";
+import { type SignUpValues, signUpSchema } from "@/lib/validations/auth";
 
 const REDIRECT_TO = "/app";
 
 const ERROR_MESSAGES: Record<string, string> = {
-  INVALID_EMAIL_OR_PASSWORD: "E-mail ou senha incorretos.",
-  EMAIL_NOT_VERIFIED: "Confirme seu e-mail antes de entrar.",
-  USER_BANNED: "Esta conta está suspensa.",
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Esse e-mail já está em uso.",
+  PASSWORD_TOO_SHORT: "A senha é muito curta.",
+  PASSWORD_TOO_LONG: "A senha é muito longa.",
+  INVALID_EMAIL: "E-mail inválido.",
 };
 
 type Step =
   | { name: "credentials" }
-  | { name: "two-factor"; methods: string[] }
   | { name: "two-factor-setup"; totpURI: string; backupCodes: string[] };
 
-export function SignInForm() {
+export function SignUpForm() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>({ name: "credentials" });
 
-  const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: "", password: "" },
-    mode: "onTouched",
-  });
   const {
     register,
     handleSubmit,
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = form;
+  } = useForm<SignUpValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    mode: "onTouched",
+  });
 
-  async function onSubmit(values: SignInValues) {
-    const { data, error } = await authClient.signIn.email({
+  async function onSubmit(values: SignUpValues) {
+    const { error: signUpError } = await authClient.signUp.email({
+      name: values.name,
       email: values.email,
       password: values.password,
     });
 
-    if (error) {
+    if (signUpError) {
       setError("root", {
         message:
-          (error.code && ERROR_MESSAGES[error.code]) ||
-          "Não foi possível entrar. Tente novamente.",
+          (signUpError.code && ERROR_MESSAGES[signUpError.code]) ||
+          "Não foi possível criar sua conta. Tente novamente.",
       });
       return;
     }
 
-    // Usuário com 2FA ativo: a sessão só é criada depois de validar o código.
-    if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
-      const methods =
-        "twoFactorMethods" in data && Array.isArray(data.twoFactorMethods)
-          ? (data.twoFactorMethods as string[])
-          : ["totp"];
-      setStep({ name: "two-factor", methods });
-      return;
-    }
+    // Toda conta nova precisa ativar o 2FA antes de acessar o app (ver /app beforeLoad).
+    const { data, error: enableError } = await authClient.twoFactor.enable({
+      password: values.password,
+      method: "totp",
+    });
 
-    // Conta que nunca concluiu a ativação obrigatória do 2FA (ex.: fechou a
-    // aba durante o cadastro): retoma a ativação antes de liberar o /app.
-    if (data && "user" in data && !data.user.twoFactorEnabled) {
-      const { data: enableData, error: enableError } =
-        await authClient.twoFactor.enable({
-          password: values.password,
-          method: "totp",
-        });
-
-      if (enableError || enableData?.method !== "totp") {
-        setError("root", {
-          message:
-            "Não foi possível preparar a verificação em duas etapas. Tente novamente.",
-        });
-        return;
-      }
-
-      setStep({
-        name: "two-factor-setup",
-        totpURI: enableData.totpURI,
-        backupCodes: enableData.backupCodes,
+    if (enableError || data?.method !== "totp") {
+      setError("root", {
+        message:
+          "Conta criada, mas não foi possível preparar a verificação em duas etapas. Tente entrar novamente em instantes.",
       });
       return;
     }
 
-    await navigate({ to: REDIRECT_TO });
-  }
-
-  if (step.name === "two-factor") {
-    return (
-      <TwoFactorForm
-        methods={step.methods}
-        onSuccess={() => navigate({ to: REDIRECT_TO })}
-        onBack={() => {
-          form.resetField("password");
-          setStep({ name: "credentials" });
-        }}
-      />
-    );
+    setStep({
+      name: "two-factor-setup",
+      totpURI: data.totpURI,
+      backupCodes: data.backupCodes,
+    });
   }
 
   if (step.name === "two-factor-setup") {
@@ -132,45 +102,68 @@ export function SignInForm() {
         <FormAlert message={errors.root?.message} />
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="sign-in-email">E-mail</Label>
+          <Label htmlFor="sign-up-name">Nome</Label>
+          <InputName
+            id="sign-up-name"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "sign-up-name-error" : undefined}
+            {...register("name")}
+          />
+          <FieldError id="sign-up-name-error" message={errors.name?.message} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="sign-up-email">E-mail</Label>
           <InputEmail
-            id="sign-in-email"
+            id="sign-up-email"
             disabled={isSubmitting}
             aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "sign-in-email-error" : undefined}
+            aria-describedby={errors.email ? "sign-up-email-error" : undefined}
             {...register("email")}
           />
           <FieldError
-            id="sign-in-email-error"
+            id="sign-up-email-error"
             message={errors.email?.message}
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-baseline justify-between">
-            <Label htmlFor="sign-in-password">Senha</Label>
-          </div>
+          <Label htmlFor="sign-up-password">Senha</Label>
           <InputPassword
-            id="sign-in-password"
+            id="sign-up-password"
             disabled={isSubmitting}
+            autoComplete="new-password"
             aria-invalid={!!errors.password}
             aria-describedby={
-              errors.password ? "sign-in-password-error" : undefined
+              errors.password ? "sign-up-password-error" : undefined
             }
             {...register("password")}
           />
           <FieldError
-            id="sign-in-password-error"
+            id="sign-up-password-error"
             message={errors.password?.message}
           />
         </div>
-        <div className="flex items-end justify-end">
-          <Link
-            to="/auth/recover"
-            className="text-sm text-accent-deep hover:underline justify-end"
-          >
-            Esqueci minha senha
-          </Link>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="sign-up-confirm-password">Confirmar senha</Label>
+          <InputPassword
+            id="sign-up-confirm-password"
+            disabled={isSubmitting}
+            autoComplete="new-password"
+            aria-invalid={!!errors.confirmPassword}
+            aria-describedby={
+              errors.confirmPassword
+                ? "sign-up-confirm-password-error"
+                : undefined
+            }
+            {...register("confirmPassword")}
+          />
+          <FieldError
+            id="sign-up-confirm-password-error"
+            message={errors.confirmPassword?.message}
+          />
         </div>
 
         <Button
@@ -181,7 +174,7 @@ export function SignInForm() {
           {isSubmitting && (
             <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
           )}
-          Entrar
+          Criar conta
         </Button>
       </form>
       <div className="flex items-center gap-3 text-[.82rem] text-ink-faint py-2">
@@ -198,12 +191,12 @@ export function SignInForm() {
         />
 
         <p className="text-center text-sm text-ink-soft">
-          Ainda não tem conta?{" "}
+          Já tem uma conta?{" "}
           <Link
-            to="/auth/sign-up"
+            to="/auth/sign-in"
             className="font-medium text-accent-deep hover:underline"
           >
-            Criar conta
+            Entrar
           </Link>
         </p>
       </div>

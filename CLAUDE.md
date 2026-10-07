@@ -17,7 +17,7 @@ pnpm check                # biome check (lint + format)
 
 pnpm generate-routes      # regenerate src/routeTree.gen.ts via `tsr generate` (normally automatic via the TanStack Start vite plugin during dev/build)
 
-pnpm db:generate           # prisma generate (uses .env.local via dotenv-cli)
+pnpm db:generate           # prisma generate (uses .env.local + .env via dotenv-cli)
 pnpm db:push                # prisma db push
 pnpm db:migrate              # prisma migrate dev
 pnpm db:studio                 # prisma studio
@@ -33,7 +33,7 @@ Biome formatting uses **tabs** and **double quotes** (see `biome.json`). Biome o
 
 ## Architecture
 
-This is a **TanStack Start** app (file-based routing via TanStack Router, Vite-based SSR framework, Nitro server adapter) bootstrapped from the `create-tanstack` CLI (`.cta.json` lists the chosen add-ons: biome, nitro, prisma, ai, shadcn, table, store, tanstack-query, storybook, paraglide, better-auth, neon).
+This is a **TanStack Start** app (file-based routing via TanStack Router, Vite-based SSR framework, Nitro server adapter) bootstrapped from the `create-tanstack` CLI (`.cta.json` lists the chosen add-ons: biome, nitro, prisma, ai, shadcn, table, store, tanstack-query, storybook, paraglide, better-auth, neon — the `neon` add-on has since been replaced by a local Docker Postgres, see Data layer below).
 
 ### Routing
 - Routes are files under `src/routes/`; `src/routeTree.gen.ts` is auto-generated — never edit it by hand.
@@ -42,10 +42,11 @@ This is a **TanStack Start** app (file-based routing via TanStack Router, Vite-b
 - Path alias: `#/*` (and `@/*`) → `./src/*` (configured in both `tsconfig.json` and `package.json#imports`). Prefer `#/` in new code since it's the primary alias used throughout `src/`.
 
 ### Data layer
-- **Prisma** (`prisma/schema.prisma`) targets Postgres, with the generated client output to `src/generated/prisma` (not the default `node_modules` location). Regenerate with `pnpm db:generate` after schema changes.
-- **Neon**: `neon-vite-plugin.ts` wraps `vite-plugin-neon-new`, auto-provisioning a claimable Neon Postgres DB in dev when `DATABASE_URL` isn't set (seeded from `db/init.sql`). Claimable databases expire after 72 hours — if local dev DB access fails unexpectedly, this is a likely cause.
-- `src/database-url.ts` reads `process.env.DATABASE_URL` (throws if missing); `src/db.ts` lazily creates a `@neondatabase/serverless` client for raw SQL access, separate from Prisma.
-- Prisma env vars load through `dotenv-cli` from `.env.local` (see the `db:*` scripts) — not `.env`.
+- **Postgres via Docker**: `docker-compose.yml` runs a local `postgres:17-alpine` container (service `db`, container `folego-db`) on port 5432, with user/password/db all `folego`. Start it with `docker compose up -d` before `pnpm dev` or any `pnpm db:*` command.
+- **Prisma** (`prisma/schema.prisma`) targets Postgres, with the generated client output to `src/generated/prisma` (not the default `node_modules` location). Regenerate with `pnpm db:generate` after schema changes. The client is constructed via `@prisma/adapter-pg` (`src/lib/prisma.ts`), using `DATABASE_URL` directly rather than a `url` in the Prisma schema's `datasource` block.
+- `src/database-url.ts` reads `process.env.DATABASE_URL` (throws if missing) — this is the single source of the connection string, used by both `src/lib/prisma.ts` and `prisma/seed.ts`.
+- Prisma env vars load through `dotenv-cli` from `.env.local` and `.env` (see the `db:*` scripts), with `.env.local` taking precedence. `.env` holds `DATABASE_URL` pointing at the Docker container (see `.env.example`).
+- The project previously used Neon (`@neondatabase/serverless`, `vite-plugin-neon-new`, auto-provisioned claimable DBs) — this has been fully removed in favor of the local Docker Postgres above.
 
 ### Auth
 - **Better Auth** is configured in `src/lib/auth.ts` (email/password enabled, `tanstackStartCookies()` plugin for TanStack Start cookie integration) and mounted at the catch-all route `src/routes/api/auth/$.ts`. Client-side hooks are in `src/lib/auth-client.ts`; `src/integrations/better-auth/header-user.tsx` renders the signed-in user in the header.
@@ -74,4 +75,4 @@ This is a **TanStack Start** app (file-based routing via TanStack Router, Vite-b
 - Config in `.storybook/main.ts` / `.storybook/preview.tsx`. Stories currently only exist for the CLI-scaffolded demo components in `src/stories/` (Button, Header, Page). Storybook tests run through the Vitest browser addon (see Commands above), not `pnpm storybook` itself.
 
 ### Demo/scaffold files
-Files and routes prefixed `demo` (`src/components/demo-*`, `src/hooks/demo-*`, `src/lib/demo-*`, `src/routes/demo/**`, `src/routes/demo.i18n.tsx`) are starter examples from the `create-tanstack` scaffold, intended to be deleted or replaced as real features are built — don't treat them as established architectural patterns to preserve, but they're useful as reference for how each add-on (AI, Prisma, Neon, TanStack Query/Store/Table, Better Auth, i18n) is expected to be wired up.
+Files and routes prefixed `demo` (`src/components/demo-*`, `src/hooks/demo-*`, `src/lib/demo-*`, `src/routes/demo/**`, `src/routes/demo.i18n.tsx`) are starter examples from the `create-tanstack` scaffold, intended to be deleted or replaced as real features are built — don't treat them as established architectural patterns to preserve, but they're useful as reference for how each add-on (AI, Prisma, TanStack Query/Store/Table, Better Auth, i18n) is expected to be wired up. (The Neon demo route, `src/routes/demo/neon.tsx`, was removed along with the rest of the Neon integration.)
