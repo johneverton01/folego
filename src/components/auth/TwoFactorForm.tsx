@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, LoaderCircleIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FieldError, FormAlert } from "@/components/auth/FormFeedback";
+import { FieldError } from "@/components/auth/FormFeedback";
 import { OtpCodeInput } from "@/components/auth/OtpCodeInput";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +13,9 @@ import {
 	type TwoFactorValues,
 	twoFactorSchema,
 } from "@/lib/validations/auth";
+
+import { toast } from "sonner";
+
 
 type Method = "totp" | "otp";
 
@@ -72,6 +75,8 @@ export function TwoFactorForm({
 		const { error } = await authClient.twoFactor.sendOtp();
 		setSending(false);
 		if (error) {
+			toast.error((error.code && ERROR_MESSAGES[error.code]) ||
+					"Não foi possível enviar o código.",)
 			setError("root", {
 				message:
 					(error.code && ERROR_MESSAGES[error.code]) ||
@@ -96,6 +101,8 @@ export function TwoFactorForm({
 
 		if (error) {
 			resetField("code");
+			toast.error(error.code && ERROR_MESSAGES[error.code]) ||
+					"Não foi possível enviar o código.",
 			setError("root", {
 				message:
 					(error.code && ERROR_MESSAGES[error.code]) ||
@@ -124,8 +131,6 @@ export function TwoFactorForm({
 					</h2>
 					<p className="mt-1.5 text-sm text-ink-soft">{description}</p>
 				</div>
-
-				<FormAlert message={errors.root?.message} />
 
 				<div className="flex flex-col items-center gap-2">
 					<Label htmlFor="two-factor-code" className="sr-only">

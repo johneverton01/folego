@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FieldError, FormAlert } from "@/components/auth/FormFeedback";
+import { FieldError } from "@/components/auth/FormFeedback";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { TwoFactorForm } from "@/components/auth/TwoFactorForm";
 import { TwoFactorSetupForm } from "@/components/auth/TwoFactorSetupForm";
@@ -14,6 +14,7 @@ import { InputPassword } from "@/components/ui/input-password";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { type SignInValues, signInSchema } from "@/lib/validations/auth";
+import { toast } from "sonner";
 
 const REDIRECT_TO = "/app";
 
@@ -40,7 +41,6 @@ export function SignInForm() {
   const {
     register,
     handleSubmit,
-    setError,
     clearErrors,
     formState: { errors, isSubmitting },
   } = form;
@@ -52,11 +52,8 @@ export function SignInForm() {
     });
 
     if (error) {
-      setError("root", {
-        message:
-          (error.code && ERROR_MESSAGES[error.code]) ||
-          "Não foi possível entrar. Tente novamente.",
-      });
+      toast.error((error.code && ERROR_MESSAGES[error.code]) ||
+          "Não foi possível entrar. Tente novamente.")
       return;
     }
 
@@ -80,10 +77,7 @@ export function SignInForm() {
         });
 
       if (enableError || enableData?.method !== "totp") {
-        setError("root", {
-          message:
-            "Não foi possível preparar a verificação em duas etapas. Tente novamente.",
-        });
+        toast.error( "Não foi possível preparar a verificação em duas etapas. Tente novamente.")
         return;
       }
 
@@ -129,8 +123,7 @@ export function SignInForm() {
         onChange={() => errors.root && clearErrors("root")}
         className="flex flex-col gap-4"
       >
-        <FormAlert message={errors.root?.message} />
-
+        
         <div className="flex flex-col gap-2">
           <Label htmlFor="sign-in-email">E-mail</Label>
           <InputEmail
@@ -194,7 +187,7 @@ export function SignInForm() {
         <GoogleSignInButton
           callbackURL={REDIRECT_TO}
           disabled={isSubmitting}
-          onError={(message) => setError("root", { message })}
+          onError={(message) => toast.error(message )}
         />
 
         <p className="text-center text-sm text-ink-soft">

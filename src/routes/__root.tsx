@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { Toaster } from '@/components/ui/sonner'
 
 import StoreDevtools from '../lib/demo-store-devtools'
 
@@ -68,6 +69,11 @@ function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
+      <Toaster
+        position='top-right'
+        richColors
+        expand
+      />
     </RootDocument>
   )
 }

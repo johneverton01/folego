@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
 import { Logo } from '@/components/brand/Logo'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { getCurrentSession } from '@/lib/auth-server'
+import { DropdownMenuProfile } from '@/components/app/DropdownMenuProfile'
 
 export const Route = createFileRoute('/app')({
   // Protege toda a árvore /app*: sem sessão válida ou com 2FA pendente, redireciona pro sign-in
@@ -33,7 +34,7 @@ function AppLayout() {
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <ThemeToggle />
-            <span className="grid size-8 place-items-center rounded-full bg-accent font-display text-sm font-semibold text-white">J</span>
+            <DropdownMenuProfile />
           </div>
         </div>
       </header>
