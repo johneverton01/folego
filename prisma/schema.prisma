@@ -29,6 +29,7 @@ model User {
   sessions         Session[]
   accounts         Account[]
   twoFactors       TwoFactor[]
+  lancamentos      Lancamento[]
 
   @@map("user")
 }
@@ -93,4 +94,28 @@ model TwoFactor {
   @@index([secret])
   @@index([userId])
   @@map("twoFactor")
+}
+
+// ─── Finanças ─────────────────────────────────────────────────────────────────
+
+enum TipoLancamento {
+  entrada
+  saida
+}
+
+model Lancamento {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  desc      String
+  /// Valor em centavos, sempre positivo; o sinal vem de `tipo`.
+  valor     Int
+  cat       String         @default("Outros")
+  tipo      TipoLancamento
+  data      DateTime       @db.Date
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([userId, data])
+  @@map("lancamento")
 }

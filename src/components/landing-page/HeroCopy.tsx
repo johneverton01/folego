@@ -5,6 +5,8 @@ import { cn } from '@/lib/cn'
 import { Arrow } from './Arrow'
 import { GHOST, PRIMARY } from './constants'
 
+import { m } from '@/paraglide/messages'
+
 const heroLine = {
   hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
   show: (i: number) => ({ opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, delay: 0.1 + i * 0.12, ease: EASE } }),
@@ -18,11 +20,11 @@ export function HeroCopy() {
         variants={heroLine}
         className="inline-flex items-center gap-2 rounded-pill border border-line bg-surface px-3 py-1.5 text-[.85rem] font-medium text-ink-soft shadow-float"
       >
-        <span className="relative flex size-[7px]">
-          <span className="absolute inset-0 rounded-full bg-accent motion-safe:animate-ping motion-safe:[animation-iteration-count:3]" />
-          <span className="relative size-[7px] rounded-full bg-accent" />
+        <span className="relative flex size-1.75">
+          <span className="absolute inset-0 rounded-full bg-accent motion-safe:animate-ping motion-safe:repeat-3" />
+          <span className="relative size-1.75 rounded-full bg-accent" />
         </span>
-        Feito pra renda que sobe e desce
+        {m.hero_span()}
       </motion.span>
       <h1 className="mt-5 font-display text-[clamp(2.4rem,6vw,4rem)] leading-[1.08] font-bold tracking-[-.035em] text-balance">
         <motion.span custom={1} variants={heroLine} className="block">

@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
 import { Logo } from '@/components/brand/Logo'
+import { LocaleToggle } from '../components/LocaleToggle'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { getCurrentSession } from '@/lib/auth-server'
 import { DropdownMenuProfile } from '@/components/app/DropdownMenuProfile'
@@ -33,6 +34,7 @@ function AppLayout() {
             <Link to="/app/aprender" className={linkBase} activeProps={{ className: `${linkBase} ${linkActive}` }}>Aprender</Link>
           </nav>
           <div className="ml-auto flex items-center gap-3">
+            <LocaleToggle />
             <ThemeToggle />
             <DropdownMenuProfile />
           </div>

@@ -22,6 +22,23 @@ export const CAT_COLOR: Record<string, string> = {
 
 export type Semaforo = 'ok' | 'warn' | 'hot'
 
+/** Fuso de referência do app: servidor e navegador calculam "mês atual" igual. */
+export const APP_TIME_ZONE = 'America/Sao_Paulo'
+
+const anoMesFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: APP_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+})
+
+/** Mês atual no fuso America/Sao_Paulo, no formato yyyy-MM. */
+export function mesAtual(date = new Date()) {
+  const parts = anoMesFormatter.formatToParts(date)
+  const ano = parts.find((p) => p.type === 'year')?.value
+  const mes = parts.find((p) => p.type === 'month')?.value
+  return `${ano}-${mes}`
+}
+
 export const soma = (l: Lancamento[]) => l.reduce((a, b) => a + b.valor, 0)
 export const money = (n: number) => 'R$ ' + Math.round(n).toLocaleString('pt-BR')
 

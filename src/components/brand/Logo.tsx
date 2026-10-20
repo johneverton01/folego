@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { m } from '@/paraglide/messages'
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -12,7 +13,7 @@ export function Logo({ className }: { className?: string }) {
           strokeLinejoin="round"
         />
       </svg>
-      Fôlego
+      {m.breath()}
     </span>
   )
 }

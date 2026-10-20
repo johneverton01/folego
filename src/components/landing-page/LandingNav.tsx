@@ -2,10 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
 import { useState } from 'react'
 import { Logo } from '@/components/brand/Logo'
+import { LocaleToggle } from '@/components/LocaleToggle'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/cn'
 import { PRIMARY, WRAP } from './constants'
 import { NavLinks } from './NavLinks'
+
+import { m } from '@/paraglide/messages'
 
 export function LandingNav() {
   const { scrollY, scrollYProgress } = useScroll()
@@ -26,12 +29,10 @@ export function LandingNav() {
         </a>
         <NavLinks />
         <div className="ml-auto flex items-center gap-2">
+          <LocaleToggle />
           <ThemeToggle />
-          <Link to="/auth/sign-in" className="hidden px-2.5 py-2 text-[.94rem] font-medium text-ink-soft transition-colors hover:text-ink min-[560px]:block">
-            Entrar
-          </Link>
-          <Link to="/app" className={cn(PRIMARY, 'px-4 py-2.5 text-[.95rem]')}>
-            Começar grátis
+          <Link to="/auth/sign-in" className={cn(PRIMARY, 'hidden px-2.5 py-2 text-[.94rem] font-medium text-ink-soft transition-colors hover:text-ink min-[560px]:block')}>
+            {m.sign_in()}
           </Link>
         </div>
       </div>
