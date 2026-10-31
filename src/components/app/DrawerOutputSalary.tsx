@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { FieldError } from "@/components/auth/FormFeedback";
 import { Button } from "@/components/ui/button";
+import { CategoryPicker } from "@/components/ui/category-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
 	Drawer,
@@ -16,15 +17,11 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-	InputGroupText,
-} from "@/components/ui/input-group";
+import { InputDescription } from "@/components/ui/input-description";
+import { InputMoney } from "@/components/ui/input-money";
 import { Label } from "@/components/ui/label";
 import { useCreateLancamento } from "@/hooks/useLancamentos";
+import { CATEGORIAS } from "@/lib/finance";
 import {
 	type LancamentoValues,
 	lancamentoSchema,
@@ -33,20 +30,6 @@ import {
 interface DrawerOutputSalaryProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-}
-
-const brl = new Intl.NumberFormat("pt-BR", {
-	minimumFractionDigits: 2,
-	maximumFractionDigits: 2,
-});
-
-// Máscara de dinheiro: os dígitos digitados são tratados como centavos.
-function formatCents(cents: number) {
-	return cents === 0 ? "" : brl.format(cents / 100);
-}
-
-function parseCents(value: string) {
-	return Number(value.replace(/\D/g, "").slice(0, 12) || 0);
 }
 
 export function DrawerOutputSalary({
@@ -63,12 +46,12 @@ export function DrawerOutputSalary({
 		formState: { errors, isSubmitting },
 	} = useForm<LancamentoValues>({
 		resolver: zodResolver(lancamentoSchema),
-		defaultValues: { desc: "", valor: 0, data: new Date() },
+		defaultValues: { desc: "", valor: 0, cat: "", data: new Date() },
 		mode: "onTouched",
 	});
 
 	function handleOpenChange(next: boolean) {
-		if (!next) reset({ desc: "", valor: 0, data: new Date() });
+		if (!next) reset({ desc: "", valor: 0, cat: "", data: new Date() });
 		onOpenChange(next);
 	}
 
@@ -77,6 +60,7 @@ export function DrawerOutputSalary({
 			await createLancamento.mutateAsync({
 				desc: values.desc,
 				valor: values.valor,
+				cat: values.cat,
 				tipo: "saida",
 				data: format(values.data, "yyyy-MM-dd"),
 			});
@@ -98,16 +82,16 @@ export function DrawerOutputSalary({
 					<DrawerHeader>
 						<DrawerTitle>Nova saída</DrawerTitle>
 						<DrawerDescription>
-							Informe a descrição, o valor gasto e a data.
+							Informe a descrição, o valor gasto, a categoria e a data.
 						</DrawerDescription>
 					</DrawerHeader>
 
 					<div className="flex-1 space-y-4 overflow-y-auto px-4">
 						<div className="space-y-2">
 							<Label htmlFor="output-desc">Descrição</Label>
-							<Input
+							<InputDescription
 								id="output-desc"
-								autoComplete="off"
+								disabled={isSubmitting}
 								placeholder="Ex.: Aluguel"
 								aria-invalid={!!errors.desc}
 								aria-describedby={errors.desc ? "output-desc-error" : undefined}
@@ -125,34 +109,49 @@ export function DrawerOutputSalary({
 								control={control}
 								name="valor"
 								render={({ field }) => (
-									<InputGroup>
-										<InputGroupAddon>
-											<InputGroupText>R$</InputGroupText>
-										</InputGroupAddon>
-										<InputGroupInput
-											id="output-value"
-											inputMode="numeric"
-											autoComplete="off"
-											placeholder="0,00"
-											aria-invalid={!!errors.valor}
-											aria-describedby={
-												errors.valor ? "output-value-error" : undefined
-											}
-											ref={field.ref}
-											name={field.name}
-											onBlur={field.onBlur}
-											value={formatCents(field.value)}
-											onChange={(e) =>
-												field.onChange(parseCents(e.target.value))
-											}
-										/>
-									</InputGroup>
+									<InputMoney
+										id="output-value"
+										disabled={isSubmitting}
+										aria-invalid={!!errors.valor}
+										aria-describedby={
+											errors.valor ? "output-value-error" : undefined
+										}
+										ref={field.ref}
+										name={field.name}
+										onBlur={field.onBlur}
+										value={field.value}
+										onChange={field.onChange}
+									/>
 								)}
 							/>
 							<FieldError
 								id="output-value-error"
 								message={errors.valor?.message}
 							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label id="output-cat-label">Categoria</Label>
+							<Controller
+								control={control}
+								name="cat"
+								render={({ field }) => (
+									<CategoryPicker
+										options={CATEGORIAS.saida}
+										disabled={isSubmitting}
+										aria-labelledby="output-cat-label"
+										aria-invalid={!!errors.cat}
+										aria-describedby={
+											errors.cat ? "output-cat-error" : undefined
+										}
+										ref={field.ref}
+										onBlur={field.onBlur}
+										value={field.value}
+										onValueChange={field.onChange}
+									/>
+								)}
+							/>
+							<FieldError id="output-cat-error" message={errors.cat?.message} />
 						</div>
 
 						<div className="space-y-2">
@@ -176,18 +175,18 @@ export function DrawerOutputSalary({
 					</div>
 
 					<DrawerFooter className="grid grid-cols-2">
-						<Button
-							type="submit"
-							disabled={isSubmitting}
-							className="bg-danger text-white hover:bg-danger/90"
-						>
+						<Button type="submit" disabled={isSubmitting}>
 							{isSubmitting && (
 								<LoaderCircleIcon className="animate-spin" aria-hidden="true" />
 							)}
 							Salvar
 						</Button>
 						<DrawerClose asChild>
-							<Button type="button" className="bg-surface">
+							<Button
+								type="button"
+								variant="outline"
+								className="border-line bg-surface text-ink hover:bg-surface-soft hover:text-ink dark:border-line dark:bg-surface dark:hover:bg-surface-soft"
+							>
 								Cancelar
 							</Button>
 						</DrawerClose>

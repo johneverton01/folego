@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -41,9 +42,17 @@ export function DatePicker({
 					type="button"
 					variant="outline"
 					data-empty={!date}
-					className="w-full justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
+					className={cn(
+						"group h-11 w-full justify-start gap-2 rounded-control border-line bg-surface px-3.5 text-left font-sans text-base font-normal text-ink shadow-none transition-[border-color,box-shadow] duration-150 hover:bg-surface hover:text-ink dark:border-line dark:bg-surface dark:hover:bg-surface",
+						"focus-visible:border-accent focus-visible:ring-[3px] focus-visible:ring-accent-wash",
+						"aria-expanded:border-accent aria-expanded:ring-[3px] aria-expanded:ring-accent-wash",
+						"data-[empty=true]:text-ink-faint motion-reduce:transition-none",
+					)}
 				>
-					<CalendarIcon />
+					<CalendarIcon
+						aria-hidden="true"
+						className="text-ink-faint transition-colors group-focus-visible:text-accent group-aria-expanded:text-accent"
+					/>
 					{date ? (
 						format(date, "PPP", { locale: ptBR })
 					) : (

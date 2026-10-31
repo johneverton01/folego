@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card } from '@/components/ui/card'
+import { authMiddleware } from '@/middleware/auth-middleware'
 
-export const Route = createFileRoute('/app/aprender')({ component: Aprender })
+
+export const Route = createFileRoute('/app/aprender')({
+  beforeLoad: authMiddleware,
+  component: Aprender
+})
 
 const LICOES = [
   { tag: 'A base de tudo', t: 'Reserva de emergência', d: 'Dinheiro parado pra uns 3 meses, caso um cliente suma.' },

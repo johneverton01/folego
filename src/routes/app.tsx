@@ -1,20 +1,13 @@
-import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, Link } from '@tanstack/react-router'
 import { Logo } from '@/components/brand/Logo'
 import { LocaleToggle } from '../components/LocaleToggle'
 import { ThemeToggle } from '../components/ThemeToggle'
-import { getCurrentSession } from '@/lib/auth-server'
+
 import { DropdownMenuProfile } from '@/components/app/DropdownMenuProfile'
+import { authMiddleware } from '@/middleware/auth-middleware'
 
 export const Route = createFileRoute('/app')({
-  // Protege toda a árvore /app*: sem sessão válida ou com 2FA pendente, redireciona pro sign-in
-  // (o sign-in retoma a ativação do 2FA quando detecta `twoFactorEnabled: false`).
-  beforeLoad: async () => {
-    const session = await getCurrentSession()
-    if (!session || !session.user.twoFactorEnabled) {
-      throw redirect({ to: '/auth/sign-in' })
-    }
-    return { user: session.user }
-  },
+  beforeLoad: authMiddleware,
   component: AppLayout,
 })
 
@@ -30,6 +23,7 @@ function AppLayout() {
           <Link to="/app"><Logo className="text-lg" /></Link>
           <nav className="ml-2 flex gap-1">
             <Link to="/app" activeOptions={{ exact: true }} className={linkBase} activeProps={{ className: `${linkBase} ${linkActive}` }}>Painel</Link>
+            <Link to="/app/historico" className={linkBase} activeProps={{ className: `${linkBase} ${linkActive}` }}>Histórico</Link>
             <Link to="/app/metas" className={linkBase} activeProps={{ className: `${linkBase} ${linkActive}` }}>Metas</Link>
             <Link to="/app/aprender" className={linkBase} activeProps={{ className: `${linkBase} ${linkActive}` }}>Aprender</Link>
           </nav>

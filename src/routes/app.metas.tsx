@@ -2,8 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { simularMeta, money } from '@/lib/finance'
 import { Card } from '@/components/ui/card'
+import { authMiddleware } from '@/middleware/auth-middleware'
 
-export const Route = createFileRoute('/app/metas')({ component: Metas })
+
+export const Route = createFileRoute('/app/metas')({ 
+  beforeLoad: authMiddleware,
+  component: Metas
+})
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 

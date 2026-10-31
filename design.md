@@ -82,7 +82,7 @@ Classes: `bg-*`, `text-*`, `border-*`, `ring-*`, e com opacidade `bg-accent/10`,
 
 Paleta do gráfico "onde seu dinheiro foi" — igual nos dois temas, ordenada para separar fatias vizinhas. Uso: `bg-cat-casa`, `bg-cat-comida`, etc.
 
-`casa #268C5C` · `comida #7FB98F` · `impostos #C9871E` · `lazer #7C9CE0` · `transporte #5FB0C9` · `assinaturas #B98FD0` · `outros #B0938A`
+`casa #268C5C` · `comida #7FB98F` · `impostos #C9871E` · `lazer #7C9CE0` · `transporte #5FB0C9` · `assinaturas #B98FD0` · `outros #B0938A` · `contrato #3F6FD8` · `freela #E0A030`
 
 ---
 

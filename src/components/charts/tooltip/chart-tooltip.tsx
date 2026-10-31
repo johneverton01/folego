@@ -23,6 +23,8 @@ import { TooltipDot } from "./tooltip-dot";
 import { TooltipIndicator } from "./tooltip-indicator";
 
 export interface ChartTooltipProps {
+  /** Formats the tooltip title date. Default: weekday + short date in the app locale */
+  formatDate?: (date: Date) => string;
   /** Whether to show the date pill at bottom. Default: true */
   showDatePill?: boolean;
   /** Whether to show the vertical crosshair line. Default: true */
@@ -109,6 +111,7 @@ interface ChartTooltipInnerProps extends ChartTooltipProps {
 }
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
+  formatDate = weekdayDateFmt.format,
   showDatePill = true,
   showCrosshair = true,
   showDots = true,
@@ -264,8 +267,8 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       return barXAccessor(tooltipData.point);
     }
     // For line/area charts, use the date
-    return weekdayDateFmt.format(xAccessor(tooltipData.point));
-  }, [tooltipData, barXAccessor, xAccessor]);
+    return formatDate(xAccessor(tooltipData.point));
+  }, [tooltipData, barXAccessor, xAccessor, formatDate]);
 
   const tooltipContent = (
     <>

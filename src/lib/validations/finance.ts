@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CATEGORIAS } from "@/lib/finance";
 
 // Teto do valor em centavos (R$ 10 milhões) — cabe com folga no INTEGER do Postgres.
 const VALOR_MAXIMO = 1_000_000_000;
@@ -21,20 +22,26 @@ const valor = z
 export const lancamentoSchema = z.object({
 	desc,
 	valor,
+	cat: z.string().min(1, "Escolha uma categoria"),
 	data: z.date({ error: "Escolha uma data" }),
 });
 
 export type LancamentoValues = z.infer<typeof lancamentoSchema>;
 
 /** Payload aceito pela server function de criação. */
-export const createLancamentoSchema = z.object({
-	desc,
-	valor,
-	tipo: z.enum(["entrada", "saida"]),
-	cat: z.string().trim().min(1).max(40).default("Outros"),
-	// Data civil (sem fuso) no formato yyyy-MM-dd.
-	data: z.iso.date("Data inválida"),
-});
+export const createLancamentoSchema = z
+	.object({
+		desc,
+		valor,
+		tipo: z.enum(["entrada", "saida"]),
+		cat: z.string(),
+		// Data civil (sem fuso) no formato yyyy-MM-dd.
+		data: z.iso.date("Data inválida"),
+	})
+	.refine(({ tipo, cat }) => CATEGORIAS[tipo].includes(cat), {
+		path: ["cat"],
+		message: "Categoria inválida",
+	});
 
 export type CreateLancamentoInput = z.input<typeof createLancamentoSchema>;
 
@@ -45,5 +52,12 @@ export const listLancamentosSchema = z
 			.string()
 			.regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Mês inválido")
 			.optional(),
+	})
+	.optional();
+
+/** Histórico mensal: quantos meses (terminando no mês atual) agregar. */
+export const historicoMensalSchema = z
+	.object({
+		meses: z.number().int().min(1).max(24).optional(),
 	})
 	.optional();

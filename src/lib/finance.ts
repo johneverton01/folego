@@ -18,6 +18,7 @@ export const CATEGORIAS: Record<Tipo, readonly string[]> = {
 export const CAT_COLOR: Record<string, string> = {
   Casa: '#268C5C', Comida: '#7FB98F', 'Impostos/PJ': '#C9871E',
   Lazer: '#7C9CE0', Transporte: '#5FB0C9', Assinaturas: '#B98FD0', Outros: '#B0938A',
+  'Contrato PJ': '#3F6FD8', Freela: '#E0A030',
 }
 
 export type Semaforo = 'ok' | 'warn' | 'hot'
@@ -59,14 +60,16 @@ export function resumo(lancamentos: Lancamento[], reserva: number): Resumo {
   return { entrou, saiu, sobrou: entrou - saiu, folegoMeses, semaforo }
 }
 
-/** Gastos agrupados por categoria, do maior pro menor. */
-export function gastosPorCategoria(lancamentos: Lancamento[]) {
+/** Entradas ou saídas agrupadas por categoria, do maior pro menor, com a fatia (0–1) de cada uma. */
+export function totaisPorCategoria(lancamentos: Lancamento[], tipo: Tipo) {
+  const doTipo = lancamentos.filter((l) => l.tipo === tipo)
+  const total = soma(doTipo)
   const grupos = new Map<string, number>()
-  for (const l of lancamentos.filter((l) => l.tipo === 'saida')) {
+  for (const l of doTipo) {
     grupos.set(l.cat, (grupos.get(l.cat) ?? 0) + l.valor)
   }
   return [...grupos.entries()]
-    .map(([cat, valor]) => ({ cat, valor, cor: CAT_COLOR[cat] ?? '#B0938A' }))
+    .map(([cat, valor]) => ({ cat, valor, fatia: valor / total, cor: CAT_COLOR[cat] ?? CAT_COLOR.Outros }))
     .sort((a, b) => b.valor - a.valor)
 }
 
@@ -76,4 +79,30 @@ export function simularMeta(alvo: number, porMes: number) {
   const quando = new Date()
   quando.setMonth(quando.getMonth() + meses)
   return { meses, quando }
+}
+
+/** Os `n` meses (yyyy-MM) terminando em `mes`, do mais antigo pro mais recente. */
+export function mesesAte(mes: string, n: number) {
+  const [ano, m] = mes.split('-').map(Number)
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(Date.UTC(ano, m - 1 - (n - 1 - i), 1))
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+  })
+}
+
+export interface HistoricoMes {
+  mes: string // yyyy-MM
+  entrou: number
+  saiu: number
+}
+
+/**
+ * Salário Fantasma: a renda média dos meses com movimento vira um salário fixo.
+ * Meses antes do primeiro lançamento não entram na média (o usuário ainda não usava o app).
+ */
+export function salarioFantasma(historico: HistoricoMes[]) {
+  const inicio = historico.findIndex((h) => h.entrou > 0 || h.saiu > 0)
+  const ativos = inicio === -1 ? [] : historico.slice(inicio)
+  const salario = ativos.length ? ativos.reduce((a, h) => a + h.entrou, 0) / ativos.length : 0
+  return { meses: ativos, salario }
 }

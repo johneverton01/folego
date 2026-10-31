@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAprenderRouteImport } from './routes/app.aprender'
+import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppMetasRouteImport } from './routes/app.metas'
 import { Route as AuthRecoverRouteImport } from './routes/auth/recover'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
@@ -58,6 +59,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppAprenderRoute = AppAprenderRouteImport.update({
   id: '/aprender',
   path: '/aprender',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoricoRoute = AppHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMetasRoute = AppMetasRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
+  '/app/historico': typeof AppHistoricoRoute
   '/app/metas': typeof AppMetasRoute
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
+  '/app/historico': typeof AppHistoricoRoute
   '/app/metas': typeof AppMetasRoute
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
+  '/app/historico': typeof AppHistoricoRoute
   '/app/metas': typeof AppMetasRoute
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/app/aprender'
+    | '/app/historico'
     | '/app/metas'
     | '/auth/recover'
     | '/auth/sign-in'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app/aprender'
+    | '/app/historico'
     | '/app/metas'
     | '/auth/recover'
     | '/auth/sign-in'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/app/aprender'
+    | '/app/historico'
     | '/app/metas'
     | '/auth/recover'
     | '/auth/sign-in'
@@ -382,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/aprender'
       fullPath: '/app/aprender'
       preLoaderRoute: typeof AppAprenderRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/historico': {
+      id: '/app/historico'
+      path: '/historico'
+      fullPath: '/app/historico'
+      preLoaderRoute: typeof AppHistoricoRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/metas': {
@@ -545,12 +564,14 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAprenderRoute: typeof AppAprenderRoute
+  AppHistoricoRoute: typeof AppHistoricoRoute
   AppMetasRoute: typeof AppMetasRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAprenderRoute: AppAprenderRoute,
+  AppHistoricoRoute: AppHistoricoRoute,
   AppMetasRoute: AppMetasRoute,
   AppIndexRoute: AppIndexRoute,
 }

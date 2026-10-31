@@ -1,10 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth";
-import { type Lancamento, mesAtual } from "@/lib/finance";
+import {
+	type HistoricoMes,
+	type Lancamento,
+	mesAtual,
+	mesesAte,
+} from "@/lib/finance";
 import { prisma } from "@/lib/prisma";
 import {
 	createLancamentoSchema,
+	historicoMensalSchema,
 	listLancamentosSchema,
 } from "@/lib/validations/finance";
 
@@ -51,6 +57,35 @@ export const getLancamentosDoMes = createServerFn({ method: "GET" })
 			orderBy: [{ data: "desc" }, { createdAt: "desc" }],
 		});
 		return rows.map(toLancamento);
+	});
+
+/** Total de entradas e saídas por mês, dos últimos `meses` meses até o atual. */
+export const getHistoricoMensal = createServerFn({ method: "GET" })
+	.validator(historicoMensalSchema)
+	.handler(async ({ data: input }): Promise<HistoricoMes[]> => {
+		const userId = await requireUserId();
+		const meses = mesesAte(mesAtual(), input?.meses ?? 6);
+		const rows = await prisma.lancamento.findMany({
+			where: {
+				userId,
+				data: {
+					gte: intervaloDoMes(meses[0]).gte,
+					lt: intervaloDoMes(meses[meses.length - 1]).lt,
+				},
+			},
+			select: { valor: true, tipo: true, data: true },
+		});
+
+		const porMes = new Map(
+			meses.map((mes) => [mes, { mes, entrou: 0, saiu: 0 }]),
+		);
+		for (const row of rows) {
+			const total = porMes.get(row.data.toISOString().slice(0, 7));
+			if (!total) continue;
+			if (row.tipo === "entrada") total.entrou += row.valor / 100;
+			else total.saiu += row.valor / 100;
+		}
+		return [...porMes.values()];
 	});
 
 /** Registra uma entrada ou saída para o usuário logado. */

@@ -55,6 +55,8 @@ export default {
           transporte: "#5FB0C9",
           assinaturas: "#B98FD0",
           outros: "#B0938A",
+          contrato: "#3F6FD8",
+          freela: "#E0A030",
         },
       },
 
