@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useFinance } from '@/lib/store'
 import {
+  folegoQueryOptions,
   historicoMensalQueryOptions,
   lancamentosDoMesQueryOptions,
+  useFolego,
   useHistoricoMensal,
   useLancamentosDoMes,
 } from '@/hooks/useLancamentos'
@@ -11,23 +12,23 @@ import { FolegoHero } from '@/components/app/FolegoHero'
 import { Ledger } from '@/components/app/Ledger'
 import { PorCategoria } from '@/components/app/PorCategoria'
 import { SalarioFantasma } from '@/components/app/SalarioFantasma'
-import { DrawerInputSalary } from '@/components/app/DrawerInputSalary'
+import { DrawerLancamento } from '@/components/app/DrawerLancamento'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CircleArrowUp, CircleArrowDown } from 'lucide-react'
-import { DrawerOutputSalary } from '@/components/app/DrawerOutputSalary'
 
 export const Route = createFileRoute('/app/')({
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(lancamentosDoMesQueryOptions()),
       context.queryClient.ensureQueryData(historicoMensalQueryOptions()),
+      context.queryClient.ensureQueryData(folegoQueryOptions()),
     ]),
   component: Painel,
 })
 
 function Painel() {
-  const reserva = useFinance((s) => s.reserva)
+  const { data: folego } = useFolego()
   const { data: lancamentos } = useLancamentosDoMes()
   const { data: historico } = useHistoricoMensal()
   const [isDrawerInputSalaryOpen, setIsDrawerInputSalaryOpen] = useState(false)
@@ -50,15 +51,17 @@ function Painel() {
           Saída
         </Button>
       </div>
-      <DrawerInputSalary
+      <DrawerLancamento
+        tipo="entrada"
         open={isDrawerInputSalaryOpen}
         onOpenChange={setIsDrawerInputSalaryOpen}
       />
-      <DrawerOutputSalary
+      <DrawerLancamento
+        tipo="saida"
         open={isDrawerOutputSalaryOpen}
         onOpenChange={setIsDrawerOutputSalaryOpen}
       />
-      <FolegoHero lancamentos={lancamentos} reserva={reserva} />
+      <FolegoHero folego={folego} />
       <Ledger lancamentos={lancamentos} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="shadow-float border border-line bg-surface p-6">

@@ -45,6 +45,57 @@ export const createLancamentoSchema = z
 
 export type CreateLancamentoInput = z.input<typeof createLancamentoSchema>;
 
+/**
+ * Payload da edição. Não inclui `tipo`, que não muda depois de criado:
+ * a categoria é validada no servidor contra o tipo salvo no banco.
+ */
+export const updateLancamentoSchema = z.object({
+	id: z.string().min(1),
+	desc,
+	valor,
+	cat: z.string().min(1),
+	data: z.iso.date("Data inválida"),
+});
+
+export type UpdateLancamentoInput = z.input<typeof updateLancamentoSchema>;
+
+export const deleteLancamentoSchema = z.object({ id: z.string().min(1) });
+
+/** Saldo em conta hoje, em centavos; zero é válido. */
+export const saldoAtualSchema = z.object({
+	saldoAtual: z
+		.number({ error: "Informe um valor" })
+		.int()
+		.min(0, "Informe um valor positivo")
+		.max(VALOR_MAXIMO, "Valor muito alto"),
+});
+
+export type SaldoAtualValues = z.infer<typeof saldoAtualSchema>;
+
+const ano = z.number().int().min(2000).max(2100);
+const mes = z.number().int().min(1).max(12);
+
+/** Lançamentos de um ano, ou de um mês dele quando `mes` vem preenchido. */
+export const lancamentosDoPeriodoSchema = z.object({
+	ano,
+	mes: mes.optional(),
+});
+
+export const resumoAnoSchema = z.object({ ano });
+
+/** Filtros da tela de histórico na URL; valor inválido é ignorado em vez de quebrar a página. */
+export const historicoSearchSchema = z.object({
+	ano: ano.optional().catch(undefined),
+	mes: z
+		.union([mes, z.literal("todos")])
+		.optional()
+		.catch(undefined),
+	tipo: z.enum(["entrada", "saida"]).optional().catch(undefined),
+	cat: z.string().max(40).optional().catch(undefined),
+});
+
+export type HistoricoSearch = z.infer<typeof historicoSearchSchema>;
+
 /** Filtro da listagem: mês no formato yyyy-MM (padrão: mês atual). */
 export const listLancamentosSchema = z
 	.object({

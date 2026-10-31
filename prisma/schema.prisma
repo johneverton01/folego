@@ -24,6 +24,8 @@ model User {
   emailVerified    Boolean     @default(false)
   image            String?
   twoFactorEnabled Boolean?    @default(false)
+  /// Ajuste em centavos pra reserva bater com o saldo informado; pode ser negativo. Nulo: ainda não informou.
+  saldoInicial     Int?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   sessions         Session[]
