@@ -77,12 +77,45 @@ export function totaisPorCategoria(lancamentos: Lancamento[], tipo: Tipo) {
     .sort((a, b) => b.valor - a.valor)
 }
 
-/** Simulador de metas: quanto por mês -> quantos meses e data-alvo. */
-export function simularMeta(alvo: number, porMes: number) {
-  const meses = Math.max(1, Math.ceil(alvo / porMes))
-  const quando = new Date()
-  quando.setMonth(quando.getMonth() + meses)
-  return { meses, quando }
+export interface Aporte {
+  id: string
+  valor: number
+  data: string // ISO
+}
+
+export interface Meta {
+  id: string
+  nome: string
+  valorAlvo: number
+  valorMensal: number
+  guardado: number
+  /** Do mais recente pro mais antigo. */
+  aportes: Aporte[]
+}
+
+/** O que falta pra meta e, guardando `valorMensal`, em quantos meses e em qual mês (yyyy-MM) ela fecha. */
+export function progressoMeta(
+  { valorAlvo, valorMensal, guardado }: Pick<Meta, 'valorAlvo' | 'valorMensal' | 'guardado'>,
+  mes = mesAtual(),
+) {
+  const falta = Math.max(0, valorAlvo - guardado)
+  const meses = Math.ceil(falta / valorMensal)
+  const [ano, m] = mes.split('-').map(Number)
+  const quando = new Date(Date.UTC(ano, m - 1 + meses, 1))
+  return {
+    falta,
+    percentual: Math.min(1, guardado / valorAlvo),
+    meses,
+    quando: chaveMes(quando.getUTCFullYear(), quando.getUTCMonth() + 1),
+    concluida: falta === 0,
+  }
+}
+
+/** `Faltam 9 meses, lá por jul/2027`; uma meta concluída não tem prazo. */
+export function frasePrazo({ meses, quando }: Pick<ReturnType<typeof progressoMeta>, 'meses' | 'quando'>) {
+  const [ano, mes] = quando.split('-').map(Number)
+  const tempo = meses === 1 ? 'Falta 1 mês' : `Faltam ${meses} meses`
+  return `${tempo}, lá por ${MESES[mes - 1].slice(0, 3)}/${ano}`
 }
 
 /** Os `n` meses (yyyy-MM) terminando em `mes`, do mais antigo pro mais recente. */

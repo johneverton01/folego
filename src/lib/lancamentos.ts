@@ -1,6 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
-import { auth } from "@/lib/auth";
 import {
 	CATEGORIAS,
 	calcularFolego,
@@ -12,6 +10,7 @@ import {
 	mesesAte,
 } from "@/lib/finance";
 import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/lib/sessao-server";
 import {
 	createLancamentoSchema,
 	deleteLancamentoSchema,
@@ -22,12 +21,6 @@ import {
 	saldoAtualSchema,
 	updateLancamentoSchema,
 } from "@/lib/validations/finance";
-
-async function requireUserId() {
-	const session = await auth.api.getSession({ headers: getRequest().headers });
-	if (!session) throw new Error("Não autenticado");
-	return session.user.id;
-}
 
 // `data` é uma coluna DATE: trabalhamos sempre em UTC pra não deslocar o dia.
 function intervaloDoMes(mes: string) {

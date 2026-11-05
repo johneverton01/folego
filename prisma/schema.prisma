@@ -32,6 +32,7 @@ model User {
   accounts         Account[]
   twoFactors       TwoFactor[]
   lancamentos      Lancamento[]
+  metas            Meta[]
 
   @@map("user")
 }
@@ -120,4 +121,33 @@ model Lancamento {
 
   @@index([userId, data])
   @@map("lancamento")
+}
+
+model Meta {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nome        String
+  /// Valores em centavos.
+  valorAlvo   Int
+  valorMensal Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  aportes     Aporte[]
+
+  @@index([userId])
+  @@map("meta")
+}
+
+model Aporte {
+  id        String   @id @default(cuid())
+  metaId    String
+  meta      Meta     @relation(fields: [metaId], references: [id], onDelete: Cascade)
+  /// Valor em centavos.
+  valor     Int
+  data      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@index([metaId, data])
+  @@map("aporte")
 }

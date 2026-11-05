@@ -20,6 +20,8 @@ import { Route as AuthRecoverRouteImport } from './routes/auth/recover'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppMetasIndexRouteImport } from './routes/app.metas.index'
+import { Route as AppMetasIdRouteImport } from './routes/app.metas.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +78,16 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppMetasIndexRoute = AppMetasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppMetasRoute,
+} as any)
+const AppMetasIdRoute = AppMetasIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppMetasRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,24 +95,27 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
   '/app/historico': typeof AppHistoricoRoute
-  '/app/metas': typeof AppMetasRoute
+  '/app/metas': typeof AppMetasRouteWithChildren
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/app/metas/$id': typeof AppMetasIdRoute
+  '/app/metas/': typeof AppMetasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
   '/app/historico': typeof AppHistoricoRoute
-  '/app/metas': typeof AppMetasRoute
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/app': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/app/metas/$id': typeof AppMetasIdRoute
+  '/app/metas': typeof AppMetasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,12 +124,14 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/app/aprender': typeof AppAprenderRoute
   '/app/historico': typeof AppHistoricoRoute
-  '/app/metas': typeof AppMetasRoute
+  '/app/metas': typeof AppMetasRouteWithChildren
   '/auth/recover': typeof AuthRecoverRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/app/metas/$id': typeof AppMetasIdRoute
+  '/app/metas/': typeof AppMetasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,18 +147,21 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/app/'
     | '/api/auth/$'
+    | '/app/metas/$id'
+    | '/app/metas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/app/aprender'
     | '/app/historico'
-    | '/app/metas'
     | '/auth/recover'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/app'
     | '/api/auth/$'
+    | '/app/metas/$id'
+    | '/app/metas'
   id:
     | '__root__'
     | '/'
@@ -155,6 +175,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/app/'
     | '/api/auth/$'
+    | '/app/metas/$id'
+    | '/app/metas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -243,6 +265,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/metas/': {
+      id: '/app/metas/'
+      path: '/'
+      fullPath: '/app/metas/'
+      preLoaderRoute: typeof AppMetasIndexRouteImport
+      parentRoute: typeof AppMetasRoute
+    }
+    '/app/metas/$id': {
+      id: '/app/metas/$id'
+      path: '/$id'
+      fullPath: '/app/metas/$id'
+      preLoaderRoute: typeof AppMetasIdRouteImport
+      parentRoute: typeof AppMetasRoute
+    }
   }
 }
 
@@ -262,17 +298,31 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface AppMetasRouteChildren {
+  AppMetasIdRoute: typeof AppMetasIdRoute
+  AppMetasIndexRoute: typeof AppMetasIndexRoute
+}
+
+const AppMetasRouteChildren: AppMetasRouteChildren = {
+  AppMetasIdRoute: AppMetasIdRoute,
+  AppMetasIndexRoute: AppMetasIndexRoute,
+}
+
+const AppMetasRouteWithChildren = AppMetasRoute._addFileChildren(
+  AppMetasRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAprenderRoute: typeof AppAprenderRoute
   AppHistoricoRoute: typeof AppHistoricoRoute
-  AppMetasRoute: typeof AppMetasRoute
+  AppMetasRoute: typeof AppMetasRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAprenderRoute: AppAprenderRoute,
   AppHistoricoRoute: AppHistoricoRoute,
-  AppMetasRoute: AppMetasRoute,
+  AppMetasRoute: AppMetasRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
 

@@ -61,6 +61,47 @@ export type UpdateLancamentoInput = z.input<typeof updateLancamentoSchema>;
 
 export const deleteLancamentoSchema = z.object({ id: z.string().min(1) });
 
+/** Formulário do drawer de meta. */
+export const metaSchema = z.object({
+	nome: z
+		.string()
+		.trim()
+		.min(1, "Informe um nome")
+		.min(2, "Nome muito curto")
+		.max(80, "O nome tem no máximo 80 caracteres"),
+	valorAlvo: valor,
+	valorMensal: valor,
+});
+
+export type MetaValues = z.infer<typeof metaSchema>;
+
+export const updateMetaSchema = metaSchema.extend({ id: z.string().min(1) });
+
+export type UpdateMetaInput = z.input<typeof updateMetaSchema>;
+
+export const deleteMetaSchema = z.object({ id: z.string().min(1) });
+
+export const metaIdSchema = z.object({ id: z.string().min(1) });
+
+/** Formulário do drawer de aporte. */
+export const aporteSchema = z.object({
+	valor,
+	data: z.date({ error: "Escolha uma data" }),
+});
+
+export type AporteValues = z.infer<typeof aporteSchema>;
+
+export const createAporteSchema = z.object({
+	metaId: z.string().min(1),
+	valor,
+	// Data civil (sem fuso) no formato yyyy-MM-dd.
+	data: z.iso.date("Data inválida"),
+});
+
+export type CreateAporteInput = z.input<typeof createAporteSchema>;
+
+export const deleteAporteSchema = z.object({ id: z.string().min(1) });
+
 /** Saldo em conta hoje, em centavos; zero é válido. */
 export const saldoAtualSchema = z.object({
 	saldoAtual: z
