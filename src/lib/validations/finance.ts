@@ -153,3 +153,6 @@ export const historicoMensalSchema = z
 		meses: z.number().int().min(1).max(24).optional(),
 	})
 	.optional();
+
+/** Prompt já montado no cliente para a sugestão da IA de uma meta. */
+export const insightSchema = z.object({ prompt: z.string().min(1) });

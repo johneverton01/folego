@@ -11,6 +11,7 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
+import { useInsight } from "@/hooks/useInsight";
 import { folegoQueryOptions, useFolego } from "@/hooks/useLancamentos";
 import { metaQueryOptions, useMeta } from "@/hooks/useMetas";
 import { frasePrazo, money, moneyExato, progressoMeta } from "@/lib/finance";
@@ -126,18 +127,7 @@ function MetaDetalhe() {
 				</Card>
 			</div>
 
-			<Card className="border border-dashed border-line bg-surface-soft p-6 shadow-float">
-				<div className="flex items-center gap-2 text-ink-soft">
-					<Sparkles aria-hidden="true" className="size-4" />
-					<h3 className="font-display text-lg font-semibold text-ink">
-						Sugestão da IA
-					</h3>
-				</div>
-				<p className="mt-2 max-w-prose text-sm text-ink-soft">
-					Em breve o Fôlego vai olhar seu saldo e seu ritmo de aportes pra
-					sugerir quanto guardar por mês e chegar nessa meta mais rápido.
-				</p>
-			</Card>
+			<SugestaoIA id={meta.id} />
 
 			{meta.aportes.length > 0 && (
 				<Card className="border border-line bg-surface p-6 shadow-float">
@@ -161,6 +151,74 @@ function MetaDetalhe() {
 					</ul>
 				</Card>
 			)}
+		</div>
+	);
+}
+
+const FEASIBILITY_LABEL: Record<string, string> = {
+	viable: "Viável no ritmo atual",
+	needs_adjustment: "Precisa de um ajuste",
+	unfeasible: "Inviável no ritmo atual",
+};
+
+function SugestaoIA({ id }: { id: string }) {
+	const { data: insight, isPending, isError } = useInsight(id);
+
+	return (
+		<Card className="border border-dashed border-line bg-surface-soft p-6 shadow-float">
+			<div className="flex items-center gap-2 text-ink-soft">
+				<Sparkles aria-hidden="true" className="size-4" />
+				<h3 className="font-display text-lg font-semibold text-ink">
+					Sugestão da IA
+				</h3>
+			</div>
+
+			{isPending && (
+				<p className="mt-2 max-w-prose text-sm text-ink-soft">
+					Analisando seu saldo e seu ritmo de aportes...
+				</p>
+			)}
+
+			{isError && (
+				<p className="mt-2 max-w-prose text-sm text-ink-soft">
+					Não foi possível gerar a sugestão agora. Tente novamente mais tarde.
+				</p>
+			)}
+
+			{insight && (
+				<div className="mt-3 space-y-4 text-sm">
+					<p className="font-semibold text-accent-deep">
+						{FEASIBILITY_LABEL[insight.feasibility.status]}
+					</p>
+					<p className="text-ink">{insight.diagnosis.content}</p>
+
+					<InsightLista titulo="Sugestões" items={insight.suggestions.items} />
+					<InsightLista
+						titulo="Renda extra"
+						items={insight.extraIncome.items}
+					/>
+					<InsightLista
+						titulo="Investimento"
+						items={insight.investment.items}
+					/>
+
+					<p className="font-medium text-ink">{insight.motivation.content}</p>
+				</div>
+			)}
+		</Card>
+	);
+}
+
+function InsightLista({ titulo, items }: { titulo: string; items: string[] }) {
+	if (items.length === 0) return null;
+	return (
+		<div>
+			<p className="font-semibold text-ink">{titulo}</p>
+			<ul className="mt-1 list-disc space-y-1 pl-4 text-ink-soft">
+				{items.map((item) => (
+					<li key={item}>{item}</li>
+				))}
+			</ul>
 		</div>
 	);
 }
